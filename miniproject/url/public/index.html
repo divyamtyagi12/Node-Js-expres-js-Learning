@@ -1,0 +1,75 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Shortener</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>URL Shortener</h1>
+
+    <form id="shorten-form">
+      <div>
+        <label for="url">Enter URL:</label>
+      </div>
+      <div>
+        <input type="url" id="url" name="url" required>
+      </div>
+      <div>
+        <label for="shortcode">Enter Shortcode (optional):</label>
+        <input type="text" id="shortcode" name="shortcode">
+      </div>
+      <div>
+        <button type="submit">Shorten URL</button>
+      </div>
+    </form>
+
+    <h2>Shortened URL:</h2>
+    <p id="result"></p>
+
+    <script>
+      document.getElementById('shorten-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+        const url = formData.get('url');
+        const shortcode = formData.get('shortcode');
+        const resultEl = document.getElementById('result');
+
+        try {
+          const response = await fetch('/shorten', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url, shortcode })
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            const shortUrl = `${window.location.origin}/${data.shortcode}`;
+
+            const link = document.createElement('a');
+            link.href = shortUrl;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = shortUrl;
+
+            resultEl.replaceChildren(link);
+          } else {
+            alert(data.error || 'Error shortening URL');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Something went wrong');
+        }
+      });
+    </script>
+  </div>
+</body>
+</html>
+```
